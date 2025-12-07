@@ -23,7 +23,7 @@
 
 1. 克隆项目并进入目录：
 ```bash
-git clone <repository-url>
+git clone git@github.com:a386572631/jin-whisper-stt.git
 
 cd whisper-tts
 ```

@@ -2,4 +2,4 @@
 audio/**
 models/**
 uploads/**
-utils/.env
+.env

@@ -1,0 +1,5 @@
+.idea/**
+./audio/**
+./models/**
+./uploads/**
+./utils/.env

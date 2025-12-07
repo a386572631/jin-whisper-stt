@@ -39,7 +39,17 @@ conda activate whisper-stt
 pip install -r requirements.txt
 
 ```
-4. 运行
+
+4. 编写.env
+```bash
+DEEPSEEK_API_KEY=
+DEEPSEEK_URL=
+DEEPSEEK_MODEL_NAME=
+HUGGINGFACE_TOKEN=
+
+```
+
+5. 运行
 ```bash
 python app.py
 ```

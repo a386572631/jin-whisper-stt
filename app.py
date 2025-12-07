@@ -41,6 +41,7 @@ class WhisperASR:
                 "pyannote/speaker-diarization-3.1",
                 use_auth_token=token
             )
+            print(f"加载pyannote/speaker-diarization-3.1模型成功")
 
     def load_model(self, model_size: str) -> Any:
         """加载指定大小的模型"""
@@ -123,7 +124,6 @@ class WhisperASR:
                 diarization = self.diarization_pipeline({"waveform": waveform, "sample_rate": sample_rate})
                 diarization_json=self.diarization_to_json(diarization_text=str(diarization))
                 speaker_list=self.find_overlap_and_merge(diarization_json['segments'], result['segments'])
-                print(f"speaker_list:{speaker_list}")
 
             return {
                 "text": corrected_text,
@@ -140,7 +140,6 @@ class WhisperASR:
             raise
 
     def diarization_to_json(self, diarization_text):
-        print(f"diarization_text:{diarization_text}")
         entries = []
 
         # 使用正则表达式匹配每一行
@@ -163,15 +162,12 @@ class WhisperASR:
     def find_overlap_and_merge(self, arr1, arr2, time_offset=0.1):
         """找出两个数组时间段的重合部分并合并，允许时间偏移"""
         result = []
-        print(f"arr1:{arr1}")
-        print(f"arr2:{arr2}")
         for item2 in arr2:
             start2 = item2['start']
             end2 = item2['end']
             matched = False
 
             for item1 in arr1:
-                print(f"item1:{item1}")
                 start1_str = item1['start']
                 end1_str = item1['end']
 
@@ -192,14 +188,8 @@ class WhisperASR:
                     h2, m2, s2 = end1_str.split(':')
                     end1 = float(h2) * 3600 + float(m2) * 60 + float(s2)
 
-                print(f"end1:{end1}")
-                print(f"start2:{start2}")
-                print(f"start1:{start1}")
-                print(f"end2:{end2}")
-                print(f"time_offset:{time_offset}")
                 if end1 > start2 + time_offset and start1 < end2 - time_offset:
                     speaker_name = None
-                    print(f"item1:{item1}")
                     if not speaker_name:
                         speaker_name = 'Speaker ' + item1['text']
 

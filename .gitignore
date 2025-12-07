@@ -1,5 +1,5 @@
 .idea/**
-./audio/**
-./models/**
-./uploads/**
-./utils/.env
+audio/**
+models/**
+uploads/**
+utils/.env

@@ -191,7 +191,7 @@ class WhisperASR:
                 if end1 > start2 + time_offset and start1 < end2 - time_offset:
                     speaker_name = None
                     if not speaker_name:
-                        speaker_name = 'Speaker ' + item1['text']
+                        speaker_name = item1['speaker']
 
                     result_item = {
                         'start': start2,

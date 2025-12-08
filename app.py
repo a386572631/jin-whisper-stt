@@ -113,8 +113,8 @@ class WhisperASR:
             # 应用文本修正
             corrected_text = self.corrector.correct_text(text, language or "zh")
             print(f"文本修正：" + corrected_text)
-            # corrected_text = self.corrector.correct_with_ai(corrected_text)
-            # print(f"模型修正：" + corrected_text)
+            corrected_text = self.corrector.correct_with_ai(corrected_text)
+            print(f"模型修正：" + corrected_text)
 
             speaker_list=[]
             # 多说话人检测
@@ -132,7 +132,7 @@ class WhisperASR:
                 "duration": result.get("duration", 0),
                 "processing_time": transcription_time,
                 "model": model_size,
-                "speakers": speaker_list
+                "speakers": self.speaker_group(speaker_list)
             }
 
         except Exception as e:
@@ -161,6 +161,8 @@ class WhisperASR:
 
     def find_overlap_and_merge(self, arr1, arr2, time_offset=0.1):
         """找出两个数组时间段的重合部分并合并，允许时间偏移"""
+        print(f"arr1:{arr1}")
+        print(f"arr2:{arr2}")
         result = []
         for item2 in arr2:
             start2 = item2['start']
@@ -189,15 +191,11 @@ class WhisperASR:
                     end1 = float(h2) * 3600 + float(m2) * 60 + float(s2)
 
                 if end1 > start2 + time_offset and start1 < end2 - time_offset:
-                    speaker_name = None
-                    if not speaker_name:
-                        speaker_name = item1['speaker']
-
                     result_item = {
                         'start': start2,
                         'end': end2,
                         'text': item2['text'],
-                        'speaker': speaker_name
+                        'speaker': item1['speaker']
                     }
                     result.append(result_item)
                     matched = True
@@ -215,6 +213,50 @@ class WhisperASR:
 
         # 按开始时间排序结果
         result.sort(key=lambda x: x['start'])
+        return result
+
+    def speaker_group(self, data):
+        # 用于按说话人分组存储数据
+        speaker_dict = {}
+        
+        for item in data:
+            speaker = item["speaker"]
+            text = item["text"]
+            start = item["start"]
+            end = item["end"]
+        
+            # 如果该speaker还未出现过，创建新记录
+            if speaker not in speaker_dict:
+                speaker_dict[speaker] = {
+                    "text": text,
+                    "start": start,
+                    "end": end
+                }
+            else:
+                # 合并文本（按时间顺序）
+                speaker_dict[speaker]["text"] += " " + text
+            
+                # 更新最早开始时间
+                if start < speaker_dict[speaker]["start"]:
+                    speaker_dict[speaker]["start"] = start
+                
+                # 更新最晚结束时间
+                if end > speaker_dict[speaker]["end"]:
+                    speaker_dict[speaker]["end"] = end
+    
+        # 转换为列表格式
+        result = []
+        for speaker, data in speaker_dict.items():
+            result.append({
+                "speaker": speaker,
+                "text": data["text"],
+                "start": data["start"],
+                "end": data["end"]
+            })
+    
+        # 按开始时间排序
+        result.sort(key=lambda x: x["start"])
+
         return result
 
 app = Flask(__name__)
